@@ -14,4 +14,12 @@ app.get('/api/posts/:postId/comments/:commentId', (_req, res) => {
   res.json({ postId: _req.params.postId, commentId: _req.params.commentId })
 })
 
+// Local development
+const PORT = process.env.PORT || 3000
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`)
+  })
+}
+
 export default app
