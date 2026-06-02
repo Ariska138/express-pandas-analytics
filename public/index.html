@@ -29,7 +29,23 @@
   <nav class="navbar">
     <div class="nav-brand"> Sales Dashboard</div>
     <div class="nav-subtitle">Express.js + Python Pandas</div>
+    <div class="nav-right" id="navAuth">
+      <span class="nav-user" id="navUser" style="display:none"></span>
+      <button class="btn-logout" id="btnLogout" style="display:none">Logout</button>
+    </div>
   </nav>
+
+  <!-- Login Modal -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal">
+      <h2>Login</h2>
+      <p class="text-muted" style="margin-bottom:1rem">Demo: <strong>admin</strong> / <strong>admin123</strong></p>
+      <input type="text" id="loginUsername" placeholder="Username" class="input">
+      <input type="password" id="loginPassword" placeholder="Password" class="input">
+      <p class="text-muted error-msg" id="loginError"></p>
+      <button class="btn" id="btnLogin">Login</button>
+    </div>
+  </div>
 
   <!-- ======== MAIN CONTENT ======== -->
   <main class="container">

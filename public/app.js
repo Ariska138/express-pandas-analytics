@@ -3,29 +3,44 @@
   FRONTEND LOGIC (app.js)
   ============================================================
   Tugas:
-    1. Fetch data dari /api/data (Node.js) dan /api/analisis (Python)
-    2. Render stats cards, grafik batang, dan tabel
-    3. Handle tab switching untuk Python analysis
+    1. Login/logout flow dengan JWT
+    2. Fetch data dari /api/data (Node.js) dan /api/analisis (Python)
+    3. Render stats cards, grafik batang, dan tabel
+    4. Handle tab switching untuk Python analysis
 
   Alur:
-    inisialisasi → fetchJSON('/api/data') → render statis Node
-                ↓
-          fetchJSON('/api/analisis') → render tab Python
+    cek token → kalau tidak ada → tampilkan modal login
+              → kalau ada → fetch data → render
   ============================================================
 */
 
-// BASE URL — kosong karena frontend di-serve dari origin yang sama
 const BASE = ''
+const TOKEN_KEY = 'auth_token'
 
-// Formatter angka ke format Indonesia (rupiah)
-// Contoh: 15000000 -> "15.000.000"
 const formatter = new Intl.NumberFormat('id-ID')
 
 // ============================================================
-// Utility: fetchJSON — fetch URL dan parse JSON
+// Token helpers
+// ============================================================
+function getToken() { return localStorage.getItem(TOKEN_KEY) }
+function setToken(t) { localStorage.setItem(TOKEN_KEY, t) }
+function clearToken() { localStorage.removeItem(TOKEN_KEY) }
+
+function authHeaders() {
+  const t = getToken()
+  return t ? { Authorization: `Bearer ${t}` } : {}
+}
+
+// ============================================================
+// fetchJSON — fetch dengan JWT header otomatis
 // ============================================================
 async function fetchJSON(url) {
-  const res = await fetch(BASE + url)
+  const res = await fetch(BASE + url, { headers: { ...authHeaders() } })
+  if (res.status === 401) {
+    clearToken()
+    showLogin()
+    throw new Error('Sesi habis, silakan login ulang')
+  }
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   return res.json()
 }
@@ -228,39 +243,106 @@ function renderAnalysis(type, data) {
 // ============================================================
 // INIT — fungsi utama, jalan pas halaman selesai dimuat
 // ============================================================
+// ============================================================
+// LOGIN / LOGOUT
+// ============================================================
+
+function showLogin() {
+  document.getElementById('loginModal').style.display = 'flex'
+  document.getElementById('navUser').style.display = 'none'
+  document.getElementById('btnLogout').style.display = 'none'
+}
+
+function hideLogin() {
+  document.getElementById('loginModal').style.display = 'none'
+}
+
+function showAuthed(username) {
+  hideLogin()
+  document.getElementById('navUser').textContent = `👤 ${username}`
+  document.getElementById('navUser').style.display = 'inline'
+  document.getElementById('btnLogout').style.display = 'inline'
+}
+
+async function doLogin(username, password) {
+  const res = await fetch(BASE + '/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  })
+  const json = await res.json()
+  if (!json.success) throw new Error(json.message)
+  return json.data
+}
+
+// Event listeners login
+document.getElementById('btnLogin').addEventListener('click', async () => {
+  const username = document.getElementById('loginUsername').value.trim()
+  const password = document.getElementById('loginPassword').value
+  const errEl = document.getElementById('loginError')
+  errEl.textContent = ''
+  try {
+    const data = await doLogin(username, password)
+    setToken(data.token)
+    showAuthed(data.username)
+    init()
+  } catch (e) {
+    errEl.textContent = e.message
+  }
+})
+
+// Enter key on password field
+document.getElementById('loginPassword').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('btnLogin').click()
+})
+
+document.getElementById('btnLogout').addEventListener('click', () => {
+  clearToken()
+  showLogin()
+  document.getElementById('stats').innerHTML = ''
+  document.getElementById('categoryChart').innerHTML = ''
+  document.getElementById('monthlyChart').innerHTML = ''
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
+  document.querySelector('.tab')?.classList.add('active')
+  document.getElementById('analysisContent').innerHTML =
+    '<p class="text-muted">Silakan login untuk melihat data.</p>'
+})
+
+// ============================================================
+// INIT — jalankan setelah login sukses atau token tersimpan
+// ============================================================
 async function init() {
   try {
+    const token = getToken()
+    if (!token) return showLogin()
+
+    // Cek token masih valid
+    const me = await fetchJSON('/api/auth/me')
+    showAuthed(me.data.user.username)
+
     // --------------------------------------------------
     // 1. LOAD DATA DARI NODE.JS (Express)
-    //    Endpoint: GET /api/data
-    //    Berisi: transaksi[] + summary (total, kategori, dll)
     // --------------------------------------------------
     const nodeData = await fetchJSON('/api/data')
     const summary = nodeData.data.summary
-
-    // Render 4 kartu statistik
     renderStats(summary)
 
-    // Render kategori (dari categoryBreakdown object)
     const catEntries = Object.entries(summary.categoryBreakdown).map(([k, v]) => ({
       category: k, totalRevenue: v.revenue, transactionCount: v.count
     }))
     renderCategory(catEntries)
 
-    // Render bulanan (dari monthlyRevenue object)
     const monthlyEntries = Object.entries(summary.monthlyRevenue).map(([k, v]) => ({
       month: k, revenue: v, transactions: 0, items: 0
     }))
     renderMonthly(monthlyEntries)
 
-    // Render tabel top 5 produk
     renderTable('topProducts', summary.topProducts, [
       { key: 'product' },
       { key: 'total', align: 'right', fn: v => formatRupiah(v) },
       { key: 'quantity', align: 'right' }
     ])
 
-    // Hitung metode pembayaran dari raw transaksi
     const payMap = {}
     nodeData.data.transactions.forEach(t => {
       const total = t.price * t.quantity
@@ -276,17 +358,11 @@ async function init() {
     ])
 
     // --------------------------------------------------
-    // 2. LOAD DATA DARI PYTHON (pandas)
-    //    Endpoint: GET /api/analisis
-    //    Berisi: statistics, categoryAnalysis, monthlyTrends,
-    //            topProducts, paymentMethodAnalysis,
-    //            topCustomers, correlationMatrix
+    // 2. LOAD DATA DARI PYTHON (pandas) — butuh token
     // --------------------------------------------------
     const pyData = await fetchJSON('/api/analisis')
     const analysis = pyData.data
 
-    // Mapping: data-type tab → key di response API
-    // Karena key Python beda dengan nama tab di HTML
     const tabKey = {
       statistics: 'statistics',
       category: 'categoryAnalysis',
@@ -297,7 +373,6 @@ async function init() {
       correlation: 'correlationMatrix'
     }
 
-    // Pasang event listener ke setiap tab
     const tabs = document.querySelectorAll('.tab')
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
@@ -307,21 +382,17 @@ async function init() {
       })
     })
 
-    // Render tab pertama (statistics) secara default
     renderAnalysis('statistics', analysis.statistics)
 
   } catch (err) {
-    // --------------------------------------------------
-    // ERROR HANDLING — kalau fetch gagal
-    // --------------------------------------------------
     document.getElementById('analysisContent').innerHTML =
       `<p class="text-muted">Gagal memuat data: ${err.message}</p>`
     document.getElementById('stats').innerHTML =
       `<div class="stat-card" style="grid-column:1/-1;text-align:center;color:#dc2626">
-        ❌ Gagal terhubung ke server. Pastikan server berjalan.
+        ❌ ${err.message}
       </div>`
   }
 }
 
-// Jalankan init saat halaman siap
+// Mulai
 init()

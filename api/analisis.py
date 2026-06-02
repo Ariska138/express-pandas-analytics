@@ -18,6 +18,8 @@
 """
 
 import json
+import os
+import jwt
 import pandas as pd
 import numpy as np
 from http.server import BaseHTTPRequestHandler
@@ -187,41 +189,58 @@ def analyze(analysis_type=None):
     return result
 
 
+JWT_SECRET = os.environ.get("JWT_SECRET", "demo-secret-key-ganti-di-production")
+
+
+def verify_jwt(token):
+    """Verifikasi JWT token, return dict user atau None"""
+    try:
+        return jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+    except jwt.PyJWTError:
+        return None
+
+
 class handler(BaseHTTPRequestHandler):
     """
     Handler untuk Vercel Python Function.
-    Vercel akan memanggil class ini untuk menangani HTTP request.
-
     Method:
-      do_GET   : menangani request GET
+      do_GET   : menangani request GET (dengan verifikasi JWT)
       do_OPTIONS: menangani CORS preflight request
     """
+
+    def _send_json(self, status, data):
+        self.send_response(status)
+        self.send_header("Content-type", "application/json")
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Headers", "Authorization, Content-Type")
+        self.end_headers()
+        self.wfile.write(json.dumps(data, indent=2, cls=NpEncoder).encode("utf-8"))
 
     def do_GET(self):
         """
         Menangani GET /api/analisis
-        Baca query parameter `type`, panggil analyze(), return JSON.
+        - Wajib header Authorization: Bearer <token>
+        - Baca query parameter `type`
         """
+        # Verifikasi JWT
+        auth = self.headers.get("Authorization", "")
+        if not auth.startswith("Bearer "):
+            return self._send_json(401, {"success": False, "message": "Token tidak ditemukan"})
+
+        user = verify_jwt(auth.split(" ")[1])
+        if not user:
+            return self._send_json(401, {"success": False, "message": "Token tidak valid atau expired"})
+
         parsed = urlparse(self.path)
         params = parse_qs(parsed.query)
         analysis_type = params.get("type", [None])[0]
 
-        # Set header response
-        self.send_response(200)
-        self.send_header("Content-type", "application/json")
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.end_headers()
-
         try:
             data = analyze(analysis_type)
-            response = {"success": True, "data": data}
-            self.wfile.write(
-                json.dumps(response, indent=2, cls=NpEncoder).encode("utf-8")
-            )
+            data["authenticated_as"] = user.get("username")
+            self._send_json(200, {"success": True, "data": data})
         except Exception as e:
-            self.wfile.write(
-                json.dumps({"success": False, "error": str(e)}, indent=2).encode("utf-8")
-            )
+            self._send_json(500, {"success": False, "error": str(e)})
 
     def do_OPTIONS(self):
         """
