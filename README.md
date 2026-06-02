@@ -146,82 +146,56 @@ curl https://namaproject.vercel.app/api/analisis?type=correlation
 └── package.json
 ```
 
-## Deploy ke Vercel (Panduan Lengkap Pemula)
+## Deploy ke Vercel
 
-### Langkah 1 — Buat Repository GitHub
+Proyek ini sudah terdeploy di:
+- **URL:** https://express-pandas-analytics-demo.finlup.id
+- **GitHub:** https://github.com/Ariska138/express-pandas-analytics
 
-1. Buka https://github.com dan login
-2. Klik tombol **New** (hijau, pojok kiri atas)
-3. Isi **Repository name** (contoh: `express-vercel`)
-4. Pilih **Public**
-5. Klik **Create repository**
-6. Jangan tutup halaman — kita akan push code dari terminal
+### Cara Deploy (untuk fork/copy sendiri)
 
-### Langkah 2 — Push Code ke GitHub
+**1. Fork repo**
+```bash
+git clone https://github.com/Ariska138/express-pandas-analytics.git
+cd express-pandas-analytics
+```
 
-Di terminal dalam folder proyek:
+**2. Import ke Vercel**
+- Buka https://vercel.com
+- **Add New... → Project**
+- Pilih repository (dari GitHub)
+- **Jangan ubah pengaturan** — Vercel otomatis deteksi dual runtime:
+
+  ```
+  Node.js detected → @vercel/node (src/index.js)
+  Python detected  → @vercel/python (api/analisis.py)
+  ```
+
+- Klik **Deploy** (1–2 menit)
+
+**3. (Opsional) Pasang domain kustom**
+- Vercel Dashboard → Project → Domains
+- Tambah domain (contoh: `analytics.domainkamu.com`)
+- Atur DNS CNAME ke `cname.vercel-dns.com`
+
+### Auto Deploy
+
+Setiap push ke branch `main` otomatis redeploy ke Vercel:
 
 ```bash
-# Inisialisasi git (jika belum ada)
-git init
-
-# Tambah semua file
 git add .
-
-# Commit
-git commit -m "Init: Express + Python pandas analisis"
-
-# Hubungkan ke repo GitHub (ganti USERNAME dan REPO)
-git remote add origin https://github.com/USERNAME/express-vercel.git
-
-# Push ke GitHub
-git push -u origin main
+git commit -m "update"
+git push origin main
 ```
 
-> Jika branch bernama `master`, ganti `main` dengan `master`.
-> Cek dengan: `git branch`
-
-### Langkah 3 — Import ke Vercel
-
-1. Buka https://vercel.com dan login (bisa pakai akun GitHub)
-2. Klik tombol **Add New...** → **Project**
-3. Pilih repository `express-vercel`
-4. **Jangan ubah pengaturan apapun** — Vercel otomatis akan mendeteksi:
-
-   ```
-   🔍 Node.js + Python detected
-   📦 @vercel/node for src/index.js
-   📦 @vercel/python for api/analisis.py
-   ```
-
-5. Klik tombol **Deploy** (tunggu 1–2 menit)
-
-### Langkah 4 — Selesai! 🎉
-
-Setelah deploy selesai, Vercel akan memberi URL seperti:
-
-```
-https://express-vercel.vercel.app
-```
-
-Buka URL tersebut di browser — dashboard akan tampil.
-
-### Troubleshooting Deploy
+### Troubleshooting
 
 | Masalah | Solusi |
 |---------|--------|
-| **Build gagal** | Pastikan `vercel.json` tidak error (JSON valid). Cek log di Vercel Dashboard → Deployments → inspect |
-| **404 di `/api/analisis`** | Pastikan file `api/analisis.py` ada. Cek log Python Function di Vercel Dashboard |
-| **Python Function timeout** | Analisis 20 transaksi dengan pandas seharusnya <1 detik. Jika lambat, cek di log |
-| **Cold start lama (5-15 detik)** | Normal untuk Python + pandas. Request pertama lambat, request berikutnya cepat (sampai function idle) |
-| **Frontend kosong / error** | Buka console browser (F12 → Console). Pastikan semua endpoint merespons |
-
-### Tips Penting
-
-- **Setiap push ke `main` akan auto-deploy** — Vercel otomatis redeploy
-- **Log ada di Vercel Dashboard** → Deployments → klik deploy → Function Logs
-- **Environment variables** bisa diatur di Vercel Dashboard → Project Settings → Environment Variables
-- **Domain kustom** bisa diatur di Vercel Dashboard → Domains
+| Build gagal | Cek `vercel.json` valid. Log di Dashboard → Deployments |
+| 404 `/api/analisis` | Pastikan `api/analisis.py` ada. Cek Function Logs |
+| Cold start 5-15 detik | Normal untuk pandas. Request pertama lambat |
+| Frontend kosong | Buka F12 → Console. Cek error fetch |
 
 ## Vercel Python Runtime — Batasan
 
