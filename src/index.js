@@ -1,17 +1,33 @@
+import 'dotenv/config'
 import express from 'express'
+import { salesData, getSalesSummary } from './data/sales.js'
 
 const app = express()
 
-app.get('/', (_req, res) => {
-  res.send('Hello Express!')
+// Middleware
+app.use(express.json())
+app.use(express.static('public'))
+
+// Routes
+app.get('/api/info', (_req, res) => {
+  res.json({
+    message: 'Express + Python Pandas Analisis',
+    endpoints: {
+      'GET /': 'Frontend dashboard',
+      'GET /api/analisis': 'Python-based sales analysis with pandas',
+      'GET /api/data': 'Raw sales data and summary statistics'
+    }
+  })
 })
 
-app.get('/api/users/:id', (_req, res) => {
-  res.json({ id: _req.params.id })
-})
-
-app.get('/api/posts/:postId/comments/:commentId', (_req, res) => {
-  res.json({ postId: _req.params.postId, commentId: _req.params.commentId })
+app.get('/api/data', (_req, res) => {
+  res.json({
+    success: true,
+    data: {
+      transactions: salesData,
+      summary: getSalesSummary()
+    }
+  })
 })
 
 // Local development

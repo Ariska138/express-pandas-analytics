@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sales Dashboard</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">📊 Sales Dashboard</div>
+    <div class="nav-subtitle">Express.js + Python Pandas</div>
+  </nav>
+
+  <main class="container">
+    <!-- Stats Cards -->
+    <section class="stats-grid" id="stats">
+      <div class="stat-card"><div class="stat-label">Total Revenue</div><div class="stat-value" id="totalRevenue">—</div></div>
+      <div class="stat-card"><div class="stat-label">Transactions</div><div class="stat-value" id="totalTransactions">—</div></div>
+      <div class="stat-card"><div class="stat-label">Total Items Sold</div><div class="stat-value" id="totalItems">—</div></div>
+      <div class="stat-card"><div class="stat-label">Avg Transaction</div><div class="stat-value" id="avgTransaction">—</div></div>
+    </section>
+
+    <!-- Charts & Tables -->
+    <div class="dashboard-grid">
+      <section class="card">
+        <h2>Kategori</h2>
+        <div id="categoryChart"></div>
+      </section>
+      <section class="card">
+        <h2>Tren Bulanan</h2>
+        <div id="monthlyChart"></div>
+      </section>
+      <section class="card">
+        <h2>Top 5 Produk</h2>
+        <div class="table-wrap"><table id="topProducts"><thead><tr><th>Produk</th><th>Revenue</th><th>Terjual</th></tr></thead><tbody></tbody></table></div>
+      </section>
+      <section class="card">
+        <h2>Metode Pembayaran</h2>
+        <div class="table-wrap"><table id="paymentMethods"><thead><tr><th>Metode</th><th>Transaksi</th><th>Revenue</th></tr></thead><tbody></tbody></table></div>
+      </section>
+    </div>
+
+    <!-- Python Analysis -->
+    <section class="card" id="pythonAnalysis">
+      <h2>🐍 Python Pandas Analysis</h2>
+      <div class="analysis-tabs">
+        <button class="tab active" data-type="statistics">Statistics</button>
+        <button class="tab" data-type="category">Category</button>
+        <button class="tab" data-type="monthly">Monthly</button>
+        <button class="tab" data-type="products">Products</button>
+        <button class="tab" data-type="payment">Payment</button>
+        <button class="tab" data-type="customers">Customers</button>
+        <button class="tab" data-type="correlation">Correlation</button>
+      </div>
+      <div id="analysisContent" class="analysis-content">
+        <p class="text-muted">Memuat data analisis...</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>Express.js + Python Pandas on Vercel</span>
+    <span class="text-muted">Data dummy 20 transaksi (2026)</span>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>
