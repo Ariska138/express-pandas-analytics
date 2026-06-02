@@ -1,15 +1,13 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "src/index.js",
-      "use": "@vercel/node"
+  "functions": {
+    "src/index.js": {
+      "runtime": "@vercel/node@4"
     },
-    {
-      "src": "api/**/*.py",
-      "use": "@vercel/python"
+    "api/**/*.py": {
+      "runtime": "@vercel/python@4"
     }
-  ],
+  },
   "routes": [
     {
       "src": "/api/analisis(.*)",
