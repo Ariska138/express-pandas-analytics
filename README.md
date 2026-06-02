@@ -283,6 +283,44 @@ Python Function di Vercel punya **cold start** (lambat di request pertama) karen
 
 Setelah itu, function tetap "hangat" selama beberapa menit. Jika tidak ada request, function akan dimatikan dan cold start terjadi lagi.
 
+## Authentication (Rencana Implementasi)
+
+Auth belum diimplementasikan di kode. Berikut arsitektur yang direncanakan:
+
+### Arsitektur JWT
+
+```
+Login ──► POST /api/auth/login ──► Express ──► JWT token
+                                               │
+Request ──► Authorization: Bearer <token> ──► Express (verify) ──► response
+Request ──► Authorization: Bearer <token> ──► Python (verify pakai PyJWT) ──► response
+```
+
+### Cara Kerja
+
+1. **Login** — user kirim username/password ke Express, validasi, balikin JWT
+2. **Setiap request** — FE kirim token di header `Authorization: Bearer <token>`
+3. **Express** — verifikasi JWT di middleware, lanjut ke route
+4. **Python** — verifikasi JWT pakai library `PyJWT` dengan secret yang sama
+
+### Stack yang Direncanakan
+
+| Komponen | Library |
+|----------|---------|
+| Issue JWT | `jsonwebtoken` (npm) |
+| Verify di Express | `jsonwebtoken` (npm) |
+| Verify di Python | `PyJWT` (pip) |
+| Secret | env var `JWT_SECRET` |
+
+### Branch Terpisah
+
+Implementasi auth akan dibuat di branch terpisah:
+```bash
+git checkout -b implementasi-auth
+```
+
+Tujuan: kode auth tidak bercampur dengan kode utama, memudahkan review & rollback.
+
 ## Perintah Berguna
 
 ```bash
