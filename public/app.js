@@ -89,6 +89,11 @@ function renderMonthly(monthly) {
 function renderAnalysis(type, data) {
   const el = document.getElementById('analysisContent')
 
+  if (!data) {
+    el.innerHTML = '<p class="text-muted">Data tidak tersedia untuk analisis ini.</p>'
+    return
+  }
+
   if (type === 'statistics') {
     const s = data
     el.innerHTML = `
@@ -215,16 +220,22 @@ async function init() {
     const pyData = await fetchJSON('/api/analisis')
     const analysis = pyData.data
 
-    // Tab switching
-    const tabs = document.querySelectorAll('.tab')
-    let activeTab = 'statistics'
+    const tabKey = {
+      statistics: 'statistics',
+      category: 'categoryAnalysis',
+      monthly: 'monthlyTrends',
+      products: 'topProducts',
+      payment: 'paymentMethodAnalysis',
+      customers: 'topCustomers',
+      correlation: 'correlationMatrix'
+    }
 
+    const tabs = document.querySelectorAll('.tab')
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
         tabs.forEach(t => t.classList.remove('active'))
         tab.classList.add('active')
-        activeTab = tab.dataset.type
-        renderAnalysis(activeTab, analysis[activeTab])
+        renderAnalysis(tab.dataset.type, analysis[tabKey[tab.dataset.type]])
       })
     })
 
