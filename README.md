@@ -152,7 +152,9 @@ Proyek ini sudah terdeploy di:
 - **URL:** https://express-pandas-analytics-demo.finlup.id
 - **GitHub:** https://github.com/Ariska138/express-pandas-analytics
 
-### Cara Deploy (untuk fork/copy sendiri)
+[![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Ariska138/express-pandas-analytics)
+
+### Cara Deploy (manual)
 
 **1. Fork repo**
 ```bash
