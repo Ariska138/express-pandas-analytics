@@ -1,6 +1,17 @@
 # Express + Python Pandas Analisis
 
-Proyek contoh **dual runtime** di Vercel: **Node.js (Express 5)** serve API dan frontend, **Python (pandas)** untuk analisis data. Semua data dummy — langsung jalan tanpa database.
+Proyek kolaborasi **3 tim** (FE, BE, AI/DS) dengan **dual runtime** di Vercel:
+**Node.js (Express 5)** serve API & frontend, **Python (pandas)** untuk analisis data.
+
+## Struktur Tim
+
+| Role | Folder | Tanggung Jawab |
+|------|--------|----------------|
+| **FE** (Frontend) | `public/` | HTML, CSS, JS dashboard |
+| **BE** (Backend) | `src/` | Express routes, auth, data flow |
+| **AI/DS** (Data) | `api/` | Python pandas analysis |
+
+Setiap tim bekerja di foldernya masing-masing tanpa perlu paham stack tim lain.
 
 ## Fitur
 
@@ -12,18 +23,17 @@ Proyek contoh **dual runtime** di Vercel: **Node.js (Express 5)** serve API dan 
 ## Cara Kerja
 
 ```
-Browser ──GET /──► Express serve public/index.html (frontend)
-            │
-            ├──GET /api/data──► Express ──► sales.js (Node.js)
-            │
-            └──GET /api/analisis──► Vercel routing────► api/analisis.py (Python)
-                            vercel.json          │
-                                                 └── pandas + numpy
+FE (public/)
+  │  fetch('/api/data')
+  ├──► BE (Express) ── sales.js ──► Data
+  │
+  │  fetch('/api/analisis')
+  └──► AI/DS (Python) ── pandas ──► Data
 ```
 
 Routing diatur di `vercel.json`:
-- `/api/analisis*` → dialihkan ke Python Function
-- Semua request lain (`/`, `/api/data`, `/style.css`, dll) → Express
+- `/api/analisis*` → dialihkan ke Python Function (AI/DS)
+- Semua request lain → Express (BE)
 
 ## Prasyarat
 
