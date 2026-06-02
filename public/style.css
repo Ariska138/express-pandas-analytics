@@ -1,9 +1,27 @@
+/*
+  ============================================================
+  STYLESHEET (style.css)
+  ============================================================
+  Gaya visual untuk frontend dashboard.
+  Tanpa framework CSS — murni CSS vanilla.
+
+  Konsep:
+    - CSS Grid & Flexbox untuk layout
+    - Bar chart dibuat dengan CSS (div + width %)
+    - Responsive: 1 kolom di layar kecil
+  ============================================================
+*/
+
+/* Reset — hapus margin/padding bawaan browser */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* ============================================================
+   BASE / TATA DASAR
+   ============================================================ */
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: #f0f2f5;
@@ -13,7 +31,9 @@ body {
   flex-direction: column;
 }
 
-/* Navbar */
+/* ============================================================
+   NAVBAR — header gelap di atas
+   ============================================================ */
 .navbar {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   color: #fff;
@@ -31,7 +51,9 @@ body {
   opacity: 0.7;
 }
 
-/* Container */
+/* ============================================================
+   CONTAINER — pembatas lebar maksimal
+   ============================================================ */
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -39,7 +61,10 @@ body {
   flex: 1;
 }
 
-/* Stats */
+/* ============================================================
+   STATS CARDS — 4 kotak ringkasan
+   Grid: auto-fit agar rapi di berbagai ukuran layar
+   ============================================================ */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -66,7 +91,10 @@ body {
   color: #1a1a2e;
 }
 
-/* Dashboard grid */
+/* ============================================================
+   DASHBOARD GRID — 2 kolom (kiri: grafik, kanan: tabel)
+   Di layar HP jadi 1 kolom (media query di bawah)
+   ============================================================ */
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -74,7 +102,9 @@ body {
   margin-bottom: 1.5rem;
 }
 
-/* Cards */
+/* ============================================================
+   CARDS — kotak putih berisi konten
+   ============================================================ */
 .card {
   background: #fff;
   border-radius: 10px;
@@ -88,7 +118,14 @@ body {
   color: #374151;
 }
 
-/* Bar charts */
+/* ============================================================
+   BAR CHARTS — grafik batang CSS murni
+   Struktur HTML:
+     .bar-item
+       .bar-label (nama kategori/bulan)
+       .bar-track (background abu-abu)
+         .bar-fill (batang warna, lebarnya di-set JS)
+   ============================================================ */
 .bar-item {
   display: flex;
   align-items: center;
@@ -120,8 +157,10 @@ body {
   font-weight: 600;
   color: #fff;
   min-width: fit-content;
-  transition: width 0.4s ease;
+  transition: width 0.4s ease; /* animasi saat render */
 }
+
+/* Warna batang — dipilih oleh JS */
 .bar-fill.blue { background: #3b82f6; }
 .bar-fill.green { background: #10b981; }
 .bar-fill.purple { background: #8b5cf6; }
@@ -131,9 +170,11 @@ body {
 .bar-fill.pink { background: #ec4899; }
 .bar-fill.indigo { background: #6366f1; }
 
-/* Tables */
+/* ============================================================
+   TABLES — untuk data tabular
+   ============================================================ */
 .table-wrap {
-  overflow-x: auto;
+  overflow-x: auto;    /* scroll horizontal di HP */
 }
 table {
   width: 100%;
@@ -156,10 +197,12 @@ tr:last-child td { border-bottom: none; }
 tr:hover td { background: #f9fafb; }
 .number {
   text-align: right;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums; /* angka sejajar vertikal */
 }
 
-/* Python analysis tabs */
+/* ============================================================
+   PYTHON ANALYSIS TABS
+   ============================================================ */
 .analysis-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -191,7 +234,9 @@ tr:hover td { background: #f9fafb; }
 .analysis-content table { font-size: 0.82rem; }
 .text-muted { color: #9ca3af; }
 
-/* Footer */
+/* ============================================================
+   FOOTER
+   ============================================================ */
 .footer {
   text-align: center;
   padding: 1rem;
@@ -203,30 +248,13 @@ tr:hover td { background: #f9fafb; }
   gap: 1.5rem;
 }
 
-/* Responsive */
+/* ============================================================
+   RESPONSIVE — untuk layar HP (<768px)
+   Dashboard grid jadi 1 kolom, label bar lebih kecil
+   ============================================================ */
 @media (max-width: 768px) {
   .dashboard-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* 1 kolom */
   }
   .bar-label { width: 80px; font-size: 0.75rem; }
 }
-
-/* Loading spinner */
-.spinner {
-  text-align: center;
-  padding: 2rem;
-  color: #9ca3af;
-}
-.spinner::after {
-  content: '';
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 2px solid #e5e7eb;
-  border-top-color: #3b82f6;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-  margin-left: 0.5rem;
-  vertical-align: middle;
-}
-@keyframes spin { to { transform: rotate(360deg); } }

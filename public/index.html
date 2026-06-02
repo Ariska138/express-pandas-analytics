@@ -1,3 +1,21 @@
+<!--
+  ============================================================
+  FRONTEND DASHBOARD (index.html)
+  ============================================================
+  Halaman utama yang ditampilkan di browser.
+  Cuma berisi struktur HTML — styling di style.css,
+  logic di app.js.
+
+  Bagian-bagian halaman:
+    1. Navbar (judul + subtitle)
+    2. Stats cards (total revenue, transaksi, item, rata-rata)
+    3. Dashboard grid (kategori, tren bulanan, top produk, metode bayar)
+    4. Python analysis (tabs untuk 7 jenis analisis + konten)
+    5. Footer
+
+  Data diisi oleh JavaScript (app.js) via fetch ke API.
+  ============================================================
+-->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -7,13 +25,16 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+  <!-- ======== NAVBAR ======== -->
   <nav class="navbar">
-    <div class="nav-brand">📊 Sales Dashboard</div>
+    <div class="nav-brand"> Sales Dashboard</div>
     <div class="nav-subtitle">Express.js + Python Pandas</div>
   </nav>
 
+  <!-- ======== MAIN CONTENT ======== -->
   <main class="container">
-    <!-- Stats Cards -->
+
+    <!-- Stats Cards: 4 kotak ringkasan angka besar -->
     <section class="stats-grid" id="stats">
       <div class="stat-card"><div class="stat-label">Total Revenue</div><div class="stat-value" id="totalRevenue">—</div></div>
       <div class="stat-card"><div class="stat-label">Transactions</div><div class="stat-value" id="totalTransactions">—</div></div>
@@ -21,29 +42,34 @@
       <div class="stat-card"><div class="stat-label">Avg Transaction</div><div class="stat-value" id="avgTransaction">—</div></div>
     </section>
 
-    <!-- Charts & Tables -->
+    <!-- Dashboard Grid: 2 kolom berisi grafik & tabel -->
     <div class="dashboard-grid">
+      <!-- Kiri atas: Grafik batang per kategori -->
       <section class="card">
         <h2>Kategori</h2>
         <div id="categoryChart"></div>
       </section>
+      <!-- Kanan atas: Grafik batang tren bulanan -->
       <section class="card">
         <h2>Tren Bulanan</h2>
         <div id="monthlyChart"></div>
       </section>
+      <!-- Kiri bawah: Tabel top 5 produk -->
       <section class="card">
         <h2>Top 5 Produk</h2>
         <div class="table-wrap"><table id="topProducts"><thead><tr><th>Produk</th><th>Revenue</th><th>Terjual</th></tr></thead><tbody></tbody></table></div>
       </section>
+      <!-- Kanan bawah: Tabel metode pembayaran -->
       <section class="card">
         <h2>Metode Pembayaran</h2>
         <div class="table-wrap"><table id="paymentMethods"><thead><tr><th>Metode</th><th>Transaksi</th><th>Revenue</th></tr></thead><tbody></tbody></table></div>
       </section>
     </div>
 
-    <!-- Python Analysis -->
+    <!-- Python Analysis: 7 tab analisis dari pandas -->
     <section class="card" id="pythonAnalysis">
-      <h2>🐍 Python Pandas Analysis</h2>
+      <h2> Python Pandas Analysis</h2>
+      <!-- Tombol-tombol tab -->
       <div class="analysis-tabs">
         <button class="tab active" data-type="statistics">Statistics</button>
         <button class="tab" data-type="category">Category</button>
@@ -53,12 +79,14 @@
         <button class="tab" data-type="customers">Customers</button>
         <button class="tab" data-type="correlation">Correlation</button>
       </div>
+      <!-- Konten tab (diisi oleh app.js) -->
       <div id="analysisContent" class="analysis-content">
         <p class="text-muted">Memuat data analisis...</p>
       </div>
     </section>
   </main>
 
+  <!-- ======== FOOTER ======== -->
   <footer class="footer">
     <span>Express.js + Python Pandas on Vercel</span>
     <span class="text-muted">Data dummy 20 transaksi (2026)</span>

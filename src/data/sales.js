@@ -1,3 +1,26 @@
+/*
+  ============================================================
+  DATA PENJUALAN (sales.js)
+  ============================================================
+  File ini berisi:
+    1. 20 transaksi dummy (Januari–April 2026)
+    2. Fungsi getSalesSummary() untuk menghitung ringkasan
+
+  Data ini adalah SATU-SATUNYA sumber data di proyek ini.
+  Baik Express (Node.js) maupun Python (pandas) menggunakan
+  data yang sama.
+
+  Kategori produk: Electronics, Accessories, Components, Storage
+  Metode bayar: Credit Card, Bank Transfer, E-Wallet, COD
+  Harga dalam Rupiah (IDR)
+  ============================================================
+*/
+
+// ============================================================
+// Array of objects — 20 transaksi penjualan
+// Setiap objek = 1 transaksi dengan properti:
+//   id, product, category, quantity, price, date, customer, paymentMethod
+// ============================================================
 export const salesData = [
   {
     id: 1,
@@ -31,7 +54,7 @@ export const salesData = [
   },
   {
     id: 4,
-    product: "Monitor Samsung 27\"",
+    product: 'Monitor Samsung 27"',
     category: "Electronics",
     quantity: 1,
     price: 4500000,
@@ -201,11 +224,30 @@ export const salesData = [
   }
 ]
 
+// ============================================================
+// getSalesSummary()
+// ============================================================
+// Fungsi untuk menghitung ringkasan statistik dari salesData.
+// Dipanggil oleh Express di endpoint GET /api/data
+//
+// Yang dihitung:
+//   - totalRevenue       : jumlah seluruh pendapatan (price * quantity)
+//   - totalTransactions  : jumlah transaksi (20)
+//   - totalItems         : jumlah item terjual
+//   - averageTransactionValue: rata-rata pendapatan per transaksi
+//   - categoryBreakdown  : pendapatan & jumlah per kategori
+//   - monthlyRevenue     : pendapatan per bulan (format YYYY-MM)
+//   - topProducts        : 5 produk dengan pendapatan tertinggi
+// ============================================================
 export const getSalesSummary = () => {
+  // Hitung total pendapatan: price * quantity dijumlah semua
   const totalRevenue = salesData.reduce((sum, sale) => sum + (sale.price * sale.quantity), 0)
+  // Jumlah transaksi = panjang array
   const totalTransactions = salesData.length
+  // Jumlah item terjual = quantity dijumlah semua
   const totalItems = salesData.reduce((sum, sale) => sum + sale.quantity, 0)
-  
+
+  // Group by kategori — object dengan key = nama kategori
   const categoryBreakdown = {}
   salesData.forEach(sale => {
     if (!categoryBreakdown[sale.category]) {
@@ -215,6 +257,7 @@ export const getSalesSummary = () => {
     categoryBreakdown[sale.category].revenue += sale.price * sale.quantity
   })
 
+  // Group by bulan — ambil 7 karakter pertama dari date (YYYY-MM)
   const monthlyRevenue = {}
   salesData.forEach(sale => {
     const month = sale.date.substring(0, 7)
@@ -224,6 +267,7 @@ export const getSalesSummary = () => {
     monthlyRevenue[month] += sale.price * sale.quantity
   })
 
+  // Top 5 produk — sort descending berdasarkan total revenue, ambil 5
   const topProducts = [...salesData]
     .map(sale => ({ ...sale, total: sale.price * sale.quantity }))
     .sort((a, b) => b.total - a.total)
