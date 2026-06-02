@@ -1,14 +1,27 @@
 import 'dotenv/config'
 import express from 'express'
+import { fileURLToPath } from 'url'
+import { dirname, join } from 'path'
+import { readFileSync } from 'fs'
 import { salesData, getSalesSummary } from './data/sales.js'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const app = express()
 
-// Middleware
-app.use(express.json())
-app.use(express.static('public'))
+const publicDir = join(__dirname, '..', 'public')
 
-// Routes
+app.use(express.json())
+app.use(express.static(publicDir))
+
+app.get('/', (_req, res) => {
+  try {
+    const html = readFileSync(join(publicDir, 'index.html'), 'utf-8')
+    res.type('html').send(html)
+  } catch {
+    res.redirect('/api/info')
+  }
+})
 app.get('/api/info', (_req, res) => {
   res.json({
     message: 'Express + Python Pandas Analisis',
